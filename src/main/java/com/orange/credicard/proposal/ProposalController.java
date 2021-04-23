@@ -9,6 +9,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/proposals")
@@ -22,6 +23,12 @@ public class ProposalController {
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody @Valid ProposalCreateForm form, UriComponentsBuilder uriBuilder) {
+
+        Optional<Proposal> possibleProposal = proposalRepository.findByDocument(form.getDocument());
+        if(possibleProposal.isPresent()) {
+            return ResponseEntity.status(422).build();
+        }
+
         Proposal proposal = form.toModel();
         Proposal savedProposal = proposalRepository.save(proposal);
 
