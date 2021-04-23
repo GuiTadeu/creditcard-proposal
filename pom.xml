@@ -8,11 +8,11 @@
 		<version>2.4.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.orange.proposal</groupId>
-	<artifactId>proposal</artifactId>
+	<groupId>com.orange.credicard</groupId>
+	<artifactId>credicard</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>proposal</name>
-	<description>Demo project for Spring Boot</description>
+	<name>credicard</name>
+	<description>API for Credicard Zero</description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
