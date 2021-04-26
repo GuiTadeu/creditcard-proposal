@@ -3,18 +3,24 @@ package com.orange.credicard.proposal;
 public class ProposalCreateDTO {
 
     private Long id;
-    private String clientEmail;
+    private String name;
+    private String email;
 
     public ProposalCreateDTO(Proposal proposal) {
         this.id = proposal.getId();
-        this.clientEmail = proposal.getEmail();
+        this.name = proposal.getName();
+        this.email = proposal.getEmail();
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getClientEmail() {
-        return clientEmail;
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
     }
 }

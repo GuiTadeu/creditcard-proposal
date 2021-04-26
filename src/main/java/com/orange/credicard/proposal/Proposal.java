@@ -18,6 +18,9 @@ public class Proposal {
     @NotBlank
     private String document;
 
+    @NotBlank
+    private String name;
+
     @Email
     @NotBlank
     private String email;
@@ -33,9 +36,16 @@ public class Proposal {
     @Enumerated(EnumType.STRING)
     private PersonType personType;
 
-    public Proposal(@NotBlank String document, @Email @NotBlank String email,
+    @Enumerated(EnumType.STRING)
+    private ProposalStatus status = ProposalStatus.CRIADO;
+
+    public Proposal() {
+    }
+
+    public Proposal(@NotBlank String document, @NotBlank String name, @Email @NotBlank String email,
                     @NotNull Address address, @NotNull @Positive BigDecimal salary) {
         this.document = document;
+        this.name = name;
         this.email = email;
         this.address = address;
         this.salary = salary;
@@ -47,6 +57,10 @@ public class Proposal {
 
     public String getDocument() {
         return document;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getEmail() {
@@ -63,6 +77,14 @@ public class Proposal {
 
     public PersonType getPersonType() {
         return personType;
+    }
+
+    public ProposalStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ProposalStatus status) {
+        this.status = status;
     }
 
     @Override
