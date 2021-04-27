@@ -52,7 +52,7 @@ public class ProposalCreateForm {
     }
 
     public Proposal toModel() {
-        return new Proposal(document, name, email, address, salary);
+        return new Proposal(document, name, email, address, salary, personType);
     }
 
     public String getDocument() {

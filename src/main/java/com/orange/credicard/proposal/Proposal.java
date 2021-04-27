@@ -42,13 +42,15 @@ public class Proposal {
     public Proposal() {
     }
 
-    public Proposal(@NotBlank String document, @NotBlank String name, @Email @NotBlank String email,
-                    @NotNull Address address, @NotNull @Positive BigDecimal salary) {
+    public Proposal(@NotBlank String document, @NotBlank String name,
+                    @Email @NotBlank String email, @NotNull Address address,
+                    @NotNull @Positive BigDecimal salary, PersonType personType) {
         this.document = document;
         this.name = name;
         this.email = email;
         this.address = address;
         this.salary = salary;
+        this.personType = personType;
     }
 
     public Long getId() {

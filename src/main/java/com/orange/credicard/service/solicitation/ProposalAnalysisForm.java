@@ -1,4 +1,6 @@
-package com.orange.credicard.proposal;
+package com.orange.credicard.service.solicitation;
+
+import com.orange.credicard.proposal.Proposal;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
