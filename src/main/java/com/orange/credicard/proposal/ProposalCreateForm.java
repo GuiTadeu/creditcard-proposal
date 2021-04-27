@@ -2,7 +2,6 @@ package com.orange.credicard.proposal;
 
 import com.orange.credicard.validation.LegalPersonGroup;
 import com.orange.credicard.validation.PhysicalPersonGroup;
-import com.orange.credicard.validation.ProposalCreateFormValidator;
 import org.hibernate.validator.constraints.br.CNPJ;
 import org.hibernate.validator.constraints.br.CPF;
 import org.hibernate.validator.group.GroupSequenceProvider;

@@ -1,25 +1,25 @@
-package com.orange.credicard.service.solicitation;
+package com.orange.credicard.service.analysis;
 
 import com.orange.credicard.proposal.Proposal;
 
-public class AnalysisServiceResponse {
+public class AnalysisResponse {
 
     private Long idProposta;
     private String documento;
     private String nome;
     private String resultadoSolicitacao;
 
-    public AnalysisServiceResponse() {
+    public AnalysisResponse() {
     }
 
-    public AnalysisServiceResponse(Proposal proposal, String resultadoSolicitacao) {
+    public AnalysisResponse(Proposal proposal, String resultadoSolicitacao) {
         this.idProposta = proposal.getId();
         this.documento = proposal.getDocument();
         this.nome = proposal.getName();
         this.resultadoSolicitacao = resultadoSolicitacao;
     }
 
-    public AnalysisServiceResponse(Long idProposta, String documento, String nome, String resultadoSolicitacao) {
+    public AnalysisResponse(Long idProposta, String documento, String nome, String resultadoSolicitacao) {
         this.idProposta = idProposta;
         this.documento = documento;
         this.nome = nome;

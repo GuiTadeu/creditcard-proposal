@@ -1,6 +1,8 @@
-package com.orange.credicard.validation;
+package com.orange.credicard.proposal;
 
 import com.orange.credicard.proposal.ProposalCreateForm;
+import com.orange.credicard.validation.LegalPersonGroup;
+import com.orange.credicard.validation.PhysicalPersonGroup;
 import org.hibernate.validator.spi.group.DefaultGroupSequenceProvider;
 
 import java.util.ArrayList;

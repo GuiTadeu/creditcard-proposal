@@ -1,9 +1,9 @@
 package com.orange.credicard.proposal;
 
-import com.orange.credicard.service.solicitation.AnalysisServiceResponse;
-import com.orange.credicard.service.solicitation.AnalysisStatusCode;
-import com.orange.credicard.service.solicitation.ProposalAnalysisClient;
-import com.orange.credicard.service.solicitation.ProposalAnalysisForm;
+import com.orange.credicard.service.analysis.AnalysisResponse;
+import com.orange.credicard.service.analysis.AnalysisStatusCode;
+import com.orange.credicard.service.analysis.AnalysisClient;
+import com.orange.credicard.service.analysis.AnalysisRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,9 +21,9 @@ import java.util.Optional;
 public class ProposalController {
 
     private final ProposalRepository proposalRepository;
-    private final ProposalAnalysisClient analysisClient;
+    private final AnalysisClient analysisClient;
 
-    public ProposalController(ProposalRepository proposalRepository, ProposalAnalysisClient analysisClient) {
+    public ProposalController(ProposalRepository proposalRepository, AnalysisClient analysisClient) {
         this.proposalRepository = proposalRepository;
         this.analysisClient = analysisClient;
     }
@@ -44,13 +44,13 @@ public class ProposalController {
     }
 
     @PostMapping("/analysis")
-    public ResponseEntity<?> analysis(@RequestBody @Valid ProposalAnalysisForm form) throws Exception {
+    public ResponseEntity<?> analysis(@RequestBody @Valid AnalysisRequest form) throws Exception {
         Proposal proposal = proposalRepository.findById(form.getIdProposta()).orElseThrow(BindException::new);
-        AnalysisServiceResponse serviceResponse = analysisClient.analysis(form);
+        AnalysisResponse serviceResponse = analysisClient.analysis(form);
         return getConvertedStatusServiceResponse(proposal, serviceResponse);
     }
 
-    private ResponseEntity<?> getConvertedStatusServiceResponse(Proposal proposal, AnalysisServiceResponse serviceResponse) {
+    private ResponseEntity<?> getConvertedStatusServiceResponse(Proposal proposal, AnalysisResponse serviceResponse) {
         var analysisStatusCode = AnalysisStatusCode.valueOf(serviceResponse.getResultadoSolicitacao());
         proposal.setStatus(analysisStatusCode.getConvertedStatus());
         return ResponseEntity.status(analysisStatusCode.getHttpStatusCode()).build();

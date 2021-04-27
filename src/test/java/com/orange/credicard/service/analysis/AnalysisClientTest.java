@@ -1,8 +1,9 @@
-package com.orange.credicard.proposal;
+package com.orange.credicard.service.analysis;
 
-import com.orange.credicard.service.solicitation.AnalysisServiceResponse;
-import com.orange.credicard.service.solicitation.ProposalAnalysisClient;
-import com.orange.credicard.service.solicitation.ProposalAnalysisForm;
+import com.orange.credicard.proposal.Address;
+import com.orange.credicard.proposal.Proposal;
+import com.orange.credicard.proposal.ProposalController;
+import com.orange.credicard.proposal.ProposalRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -19,17 +20,17 @@ import java.math.BigDecimal;
 
 import static com.orange.credicard.proposal.PersonType.PF;
 import static com.orange.credicard.proposal.ProposalStatus.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ProposalAnalysisClientTest {
+class AnalysisClientTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private ProposalRepository proposalRepository;
 
     @Mock
-    private ProposalAnalysisClient proposalAnalysisClient;
+    private AnalysisClient analysisClient;
 
     @PersistenceContext
     private EntityManager manager;
@@ -50,11 +51,11 @@ public class ProposalAnalysisClientTest {
     public void analysis__should_save_status_NAO_ELEGIVEL_if_service_returns_COM_RESTRICAO() throws Exception {
         assertEquals(proposal.getStatus(), CRIADO);
 
-        var formToAnalysis = new ProposalAnalysisForm(proposal);
-        Mockito.when(proposalAnalysisClient.analysis(formToAnalysis))
-                .thenReturn(new AnalysisServiceResponse(proposal, "COM_RESTRICAO"));
+        var formToAnalysis = new AnalysisRequest(proposal);
+        Mockito.when(analysisClient.analysis(formToAnalysis))
+                .thenReturn(new AnalysisResponse(proposal, "COM_RESTRICAO"));
 
-        new ProposalController(proposalRepository, proposalAnalysisClient).analysis(formToAnalysis);
+        new ProposalController(proposalRepository, analysisClient).analysis(formToAnalysis);
 
         assertEquals(proposal.getStatus(), NAO_ELEGIVEL);
     }
@@ -64,12 +65,12 @@ public class ProposalAnalysisClientTest {
     public void analysis__should_save_status_ELEGIVEL_if_service_returns_SEM_RESTRICAO() throws Exception {
         assertEquals(proposal.getStatus(), CRIADO);
 
-        var formToAnalysis = new ProposalAnalysisForm(proposal);
+        var formToAnalysis = new AnalysisRequest(proposal);
 
-        Mockito.when(proposalAnalysisClient.analysis(formToAnalysis))
-                .thenReturn(new AnalysisServiceResponse(proposal, "SEM_RESTRICAO"));
+        Mockito.when(analysisClient.analysis(formToAnalysis))
+                .thenReturn(new AnalysisResponse(proposal, "SEM_RESTRICAO"));
 
-        new ProposalController(proposalRepository, proposalAnalysisClient).analysis(formToAnalysis);
+        new ProposalController(proposalRepository, analysisClient).analysis(formToAnalysis);
 
         assertEquals(proposal.getStatus(), ELEGIVEL);
     }

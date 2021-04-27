@@ -1,4 +1,4 @@
-package com.orange.credicard.service.solicitation;
+package com.orange.credicard.service.analysis;
 
 import com.orange.credicard.proposal.ProposalStatus;
 

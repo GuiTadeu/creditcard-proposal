@@ -1,26 +1,26 @@
-package com.orange.credicard.service.solicitation;
+package com.orange.credicard.service.analysis;
 
 import com.orange.credicard.proposal.Proposal;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-public class ProposalAnalysisForm {
+public class AnalysisRequest {
 
     @NotNull private Long idProposta;
     @NotBlank private String documento;
     @NotBlank private String nome;
 
-    public ProposalAnalysisForm() {
+    public AnalysisRequest() {
     }
 
-    public ProposalAnalysisForm(Proposal proposal) {
+    public AnalysisRequest(Proposal proposal) {
         this.idProposta = proposal.getId();
         this.documento = proposal.getDocument();
         this.nome = proposal.getName();
     }
 
-    public ProposalAnalysisForm(@NotNull Long idProposta, @NotBlank String documento, @NotBlank String nome) {
+    public AnalysisRequest(@NotNull Long idProposta, @NotBlank String documento, @NotBlank String nome) {
         this.idProposta = idProposta;
         this.documento = documento;
         this.nome = nome;
