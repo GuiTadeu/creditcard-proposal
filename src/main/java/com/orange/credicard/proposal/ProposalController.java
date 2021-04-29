@@ -1,14 +1,12 @@
 package com.orange.credicard.proposal;
 
+import com.orange.credicard.exception.NotFoundException;
 import com.orange.credicard.service.analysis.AnalysisResponse;
 import com.orange.credicard.service.analysis.AnalysisStatusCode;
 import com.orange.credicard.service.analysis.AnalysisClient;
 import com.orange.credicard.service.analysis.AnalysisRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -54,5 +52,11 @@ public class ProposalController {
         var analysisStatusCode = AnalysisStatusCode.valueOf(serviceResponse.getResultadoSolicitacao());
         proposal.setStatus(analysisStatusCode.getConvertedStatus());
         return ResponseEntity.status(analysisStatusCode.getHttpStatusCode()).build();
+    }
+
+    @GetMapping("/status/{proposalId}")
+    public ResponseEntity<ProposalSituationDTO> status(@PathVariable Long proposalId) throws Exception {
+        Proposal proposal = proposalRepository.findById(proposalId).orElseThrow(NotFoundException::new);
+        return ResponseEntity.ok(new ProposalSituationDTO(proposal));
     }
 }

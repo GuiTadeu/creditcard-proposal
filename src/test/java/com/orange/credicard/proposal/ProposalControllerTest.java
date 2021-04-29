@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 
 import static com.orange.credicard.proposal.PersonType.PF;
+import static com.orange.credicard.proposal.ProposalStatus.ELEGIVEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -86,6 +87,40 @@ public class ProposalControllerTest {
         assertEquals(retrievedProposal, createForm.toModel());
 
         postAndExpected(uri, json, 422);
+    }
+
+    @Test
+    @Transactional
+    public void situation__should_return_if_existing_proposal_200_ok() throws Exception {
+        Proposal proposal = proposalRepository.save(createForm.toModel());
+        proposal.setStatus(ELEGIVEL);
+
+        URI uri = new URI("/proposals/status/" + proposal.getId());
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders
+            .get(uri)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers
+                .status()
+                .is(200))
+            .andReturn();
+
+        String proposalStatus = JsonPath.read(result.getResponse().getContentAsString(), "$.status");
+
+        assertEquals(ELEGIVEL.toString(), proposalStatus);
+    }
+
+    @Test
+    @Transactional
+    public void situation__should_not_return_if_not_existing_proposal_404_notFound() throws Exception {
+        URI uri = new URI("/proposals/status/" + 0);
+
+        mockMvc.perform(MockMvcRequestBuilders
+            .get(uri)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers
+                .status()
+                .is(404));
     }
 
     private MvcResult postAndExpected(URI uri, String json, Integer expectedStatus) throws Exception {
