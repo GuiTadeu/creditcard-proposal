@@ -12,6 +12,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import static com.orange.credicard.card.CardStatus.BLOCKED;
+import static com.orange.credicard.card.CardStatus.NORMAL;
+
 @Entity
 public class Card {
 
@@ -38,6 +41,8 @@ public class Card {
     @NotNull
     @OneToOne
     private Proposal proposal;
+
+    private CardStatus status = NORMAL;
 
     public Card() {
     }
@@ -74,6 +79,14 @@ public class Card {
 
     public Proposal getProposal() {
         return proposal;
+    }
+
+    public CardStatus getStatus() {
+        return status;
+    }
+
+    public void block() {
+        this.status = BLOCKED;
     }
 
     @Override
