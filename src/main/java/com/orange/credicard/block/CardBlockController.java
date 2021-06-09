@@ -5,6 +5,8 @@ import com.orange.credicard.card.CardRepository;
 import com.orange.credicard.card.CardStatus;
 import com.orange.credicard.exception.NotFoundException;
 import com.orange.credicard.exception.UnprocessableEntityException;
+import com.orange.credicard.service.accounts.AccountsClient;
+import com.orange.credicard.service.accounts.AccountsClient.ServiceCardStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,15 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
+import static com.orange.credicard.service.accounts.AccountsClient.ServiceCardStatus.BLOQUEADO;
+
 @RestController
 public class CardBlockController {
 
     private final CardRepository cardRepository;
     private final CardBlockerRepository cardBlockerRepository;
+    private final AccountsClient accountsClient;
 
-    public CardBlockController(CardRepository cardRepository, CardBlockerRepository cardBlockerRepository) {
+    public CardBlockController(CardRepository cardRepository, CardBlockerRepository cardBlockerRepository, AccountsClient accountsClient) {
         this.cardRepository = cardRepository;
         this.cardBlockerRepository = cardBlockerRepository;
+        this.accountsClient = accountsClient;
     }
 
     @PostMapping("/cards/{cardId}/block")
@@ -33,17 +39,28 @@ public class CardBlockController {
             }
         );
 
-        card.block();
+        ServiceCardStatus serviceCardStatus;
+        try {
+            serviceCardStatus = accountsClient.blockCard(cardId);
+        } catch (Exception exception) {
+            return ResponseEntity.status(500).body("Falha no serviço - Não foi possível bloquear o cartão");
+        }
 
-        cardBlockerRepository.save(
-            new BlockedCard(
-                request.getRemoteAddr(),
-                request.getHeader("User-Agent"),
-                card
-            )
-        );
+        if(serviceCardStatus.equals(BLOQUEADO)) {
+            card.block();
 
-        return ResponseEntity.ok(new BlockedCardDTO(cardId, card.getStatus()));
+            cardBlockerRepository.save(
+                new BlockedCard(
+                    request.getRemoteAddr(),
+                    request.getHeader("User-Agent"),
+                    card
+                )
+            );
+
+            return ResponseEntity.ok(new BlockedCardDTO(cardId, card.getStatus()));
+        }
+
+        return ResponseEntity.status(422).body("Não foi possível bloquear o cartão");
     }
 
     public class BlockedCardDTO {

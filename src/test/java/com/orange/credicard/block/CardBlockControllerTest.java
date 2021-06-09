@@ -2,11 +2,15 @@ package com.orange.credicard.block;
 
 import com.orange.credicard.card.Card;
 import com.orange.credicard.card.CardRepository;
+import com.orange.credicard.exception.UnprocessableEntityException;
 import com.orange.credicard.proposal.Address;
 import com.orange.credicard.proposal.Proposal;
 import com.orange.credicard.proposal.ProposalRepository;
+import com.orange.credicard.service.accounts.AccountsClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,14 +20,20 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static com.orange.credicard.card.CardStatus.BLOCKED;
+import static com.orange.credicard.card.CardStatus.NORMAL;
 import static com.orange.credicard.proposal.PersonType.PF;
+import static com.orange.credicard.service.accounts.AccountsClient.ServiceCardStatus.BLOQUEADO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -34,10 +44,12 @@ class CardBlockControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private CardRepository cardRepository;
-    @Autowired private CardBlockerRepository cardBlockerRepository;
     @Autowired private ProposalRepository proposalRepository;
+    @Autowired private CardBlockerRepository cardBlockerRepository;
 
-    private Card card;
+    @Mock private AccountsClient accountsClient;
+
+    private Long cardId;
 
     @BeforeEach
     void setup() {
@@ -47,7 +59,9 @@ class CardBlockControllerTest {
         Proposal proposal = proposalRepository.save(new Proposal("54799611011", "Jubileu Irineu da Silva",
             "jubileu@gmail.com", address, new BigDecimal("40000"), PF));
 
-        card = cardRepository.save(new Card("5352-7465-5791-9495", LocalDateTime.now(), 20, new BigDecimal("20000"), proposal));
+        cardId = cardRepository.save(
+            new Card("5352-7465-5791-9495", LocalDateTime.now(),
+                20, new BigDecimal("20000"), proposal)).getId();
     }
 
     @Test
@@ -72,30 +86,37 @@ class CardBlockControllerTest {
 
     @Test
     @Transactional
-    public void cardBlock__should_return_422_unprocessableEntity_if_card_is_already_blocked() throws Exception {
+    public void cardBlock__should_return_422_unprocessableEntity_if_card_is_already_blocked() {
+        Card card = cardRepository.getOne(cardId);
 
-        cardBlockerRepository.save(new BlockedCard("127.0.0.1", "Mozilla/5.0", card));
+        CardBlockerRepository mockBlocker = mock(CardBlockerRepository.class);
 
-        mockMvc.perform(MockMvcRequestBuilders
-            .post(String.format("/cards/%s/block", card.getId()))
-            .header("user-agent", "Mozilla/5.0"))
-            .andExpect(MockMvcResultMatchers
-                .status()
-                .is(422));
+        Mockito.when(mockBlocker.findById(cardId)).thenReturn(Optional.of(
+            new BlockedCard("127.0.0.1", "Mozilla/5.0", card)
+        ));
+
+        assertThrows(UnprocessableEntityException.class, () ->
+                new CardBlockController(cardRepository, mockBlocker, accountsClient)
+                    .cardBlock(card.getId(), mock(HttpServletRequest.class))
+        );
     }
 
     @Test
     @Transactional
-    public void cardBlock__should_return_200_success_and_block_card() throws Exception {
+    public void cardBlock__should_return_200_success_and_block_card() {
+        Card card = cardRepository.getOne(cardId);
+        assertEquals(NORMAL, card.getStatus());
 
-        mockMvc.perform(MockMvcRequestBuilders
-            .post(String.format("/cards/%s/block", card.getId()))
-            .header("user-agent", "Mozilla/5.0"))
-            .andExpect(MockMvcResultMatchers
-                .status()
-                .is(200));
+        Mockito.when(accountsClient.blockCard(card.getId())).thenReturn(BLOQUEADO);
 
-        assertThat(cardBlockerRepository.findById(card.getId())).isNotEmpty();
+        HttpServletRequest mockServletRequest = mock(HttpServletRequest.class);
+        Mockito.when(mockServletRequest.getRemoteAddr()).thenReturn("127.0.0.1");
+        Mockito.when(mockServletRequest.getHeader("User-Agent")).thenReturn("Mozilla/5.0");
+
+        new CardBlockController(cardRepository, cardBlockerRepository, accountsClient)
+            .cardBlock(card.getId(), mockServletRequest);
+
         assertEquals(BLOCKED, card.getStatus());
+        assertThat(cardBlockerRepository.findByCardId(card.getId())).isNotEmpty();
     }
 }
