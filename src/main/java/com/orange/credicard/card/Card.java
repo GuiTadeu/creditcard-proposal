@@ -81,6 +81,10 @@ public class Card {
         return proposal;
     }
 
+    public Long getProposalId() {
+        return proposal.getId();
+    }
+
     public CardStatus getStatus() {
         return status;
     }

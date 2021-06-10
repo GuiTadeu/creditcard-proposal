@@ -1,9 +1,8 @@
 package com.orange.credicard.service.analysis;
 
-import com.orange.credicard.proposal.Address;
-import com.orange.credicard.proposal.Proposal;
-import com.orange.credicard.proposal.ProposalController;
-import com.orange.credicard.proposal.ProposalRepository;
+import com.orange.credicard.card.CardRepository;
+import com.orange.credicard.proposal.*;
+import com.orange.credicard.service.accounts.AccountsClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -29,8 +28,10 @@ class AnalysisClientTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private ProposalRepository proposalRepository;
 
-    @Mock
-    private AnalysisClient analysisClient;
+    @Mock private CardRepository cardRepository;
+    @Mock private AnalysisClient analysisClient;
+    @Mock private AccountsClient accountsClient;
+    @Mock private AddressRepository addressRepository;
 
     @PersistenceContext
     private EntityManager manager;
@@ -55,7 +56,7 @@ class AnalysisClientTest {
         Mockito.when(analysisClient.analysis(formToAnalysis))
                 .thenReturn(new AnalysisResponse(proposal, "COM_RESTRICAO"));
 
-        new ProposalController(proposalRepository, analysisClient).analysis(formToAnalysis);
+        new ProposalController(analysisClient, accountsClient, cardRepository, proposalRepository, addressRepository).analysis(formToAnalysis);
 
         assertEquals(proposal.getStatus(), NAO_ELEGIVEL);
     }
@@ -70,7 +71,7 @@ class AnalysisClientTest {
         Mockito.when(analysisClient.analysis(formToAnalysis))
                 .thenReturn(new AnalysisResponse(proposal, "SEM_RESTRICAO"));
 
-        new ProposalController(proposalRepository, analysisClient).analysis(formToAnalysis);
+        new ProposalController(analysisClient, accountsClient, cardRepository, proposalRepository, addressRepository).analysis(formToAnalysis);
 
         assertEquals(proposal.getStatus(), ELEGIVEL);
     }

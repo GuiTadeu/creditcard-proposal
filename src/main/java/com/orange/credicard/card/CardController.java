@@ -4,6 +4,7 @@ import com.orange.credicard.proposal.Proposal;
 import com.orange.credicard.proposal.ProposalRepository;
 import com.orange.credicard.service.accounts.AccountsClient;
 import com.orange.credicard.service.accounts.AccountsRequest;
+import com.orange.credicard.service.accounts.AccountsResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,11 +35,8 @@ public class CardController {
 
         List<Proposal> approvedProposals = proposalRepository.findByStatus(ELEGIVEL);
 
-        approvedProposals.stream()
-            .map(AccountsRequest::new)
-            .map(accountsClient::cardSituation)
-            .forEach(response -> {
-                Proposal proposal = proposalRepository.getOne(response.getIdProposta());
+        approvedProposals.forEach(proposal -> {
+                AccountsResponse response = accountsClient.cardSituation(proposal.getId());
                 Card card = response.toCard(proposal);
                 cardRepository.save(card);
             }

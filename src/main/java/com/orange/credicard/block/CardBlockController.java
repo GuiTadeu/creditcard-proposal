@@ -6,7 +6,8 @@ import com.orange.credicard.card.CardStatus;
 import com.orange.credicard.exception.NotFoundException;
 import com.orange.credicard.exception.UnprocessableEntityException;
 import com.orange.credicard.service.accounts.AccountsClient;
-import com.orange.credicard.service.accounts.AccountsClient.ServiceCardStatus;
+import com.orange.credicard.service.accounts.ServiceCardStatus;
+import com.orange.credicard.service.accounts.ServiceNameRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
-import static com.orange.credicard.service.accounts.AccountsClient.ServiceCardStatus.BLOQUEADO;
+import static com.orange.credicard.service.accounts.ServiceCardStatus.BlockCardStatus.BLOQUEADO;
 
 @RestController
 public class CardBlockController {
@@ -41,12 +42,12 @@ public class CardBlockController {
 
         ServiceCardStatus serviceCardStatus;
         try {
-            serviceCardStatus = accountsClient.blockCard(cardId);
+            serviceCardStatus = accountsClient.blockCard(card.getCardNumber(), new ServiceNameRequest());
         } catch (Exception exception) {
             return ResponseEntity.status(500).body("Falha no serviço - Não foi possível bloquear o cartão");
         }
 
-        if(serviceCardStatus.equals(BLOQUEADO)) {
+        if(BLOQUEADO.equals(serviceCardStatus.getResultado())) {
             card.block();
 
             cardBlockerRepository.save(

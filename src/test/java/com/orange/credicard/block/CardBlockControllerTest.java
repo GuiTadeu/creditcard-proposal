@@ -7,6 +7,8 @@ import com.orange.credicard.proposal.Address;
 import com.orange.credicard.proposal.Proposal;
 import com.orange.credicard.proposal.ProposalRepository;
 import com.orange.credicard.service.accounts.AccountsClient;
+import com.orange.credicard.service.accounts.ServiceCardStatus;
+import com.orange.credicard.service.accounts.ServiceNameRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -29,10 +31,12 @@ import java.util.Optional;
 import static com.orange.credicard.card.CardStatus.BLOCKED;
 import static com.orange.credicard.card.CardStatus.NORMAL;
 import static com.orange.credicard.proposal.PersonType.PF;
-import static com.orange.credicard.service.accounts.AccountsClient.ServiceCardStatus.BLOQUEADO;
+import static com.orange.credicard.service.accounts.ServiceCardStatus.BlockCardStatus.BLOQUEADO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 
 @SpringBootTest
@@ -48,6 +52,7 @@ class CardBlockControllerTest {
     @Autowired private CardBlockerRepository cardBlockerRepository;
 
     @Mock private AccountsClient accountsClient;
+    @Mock private HttpServletRequest mockServletRequest;
 
     private Long cardId;
 
@@ -107,9 +112,9 @@ class CardBlockControllerTest {
         Card card = cardRepository.getOne(cardId);
         assertEquals(NORMAL, card.getStatus());
 
-        Mockito.when(accountsClient.blockCard(card.getId())).thenReturn(BLOQUEADO);
+        Mockito.when(accountsClient.blockCard(any(), any()))
+            .thenReturn(new ServiceCardStatus(BLOQUEADO));
 
-        HttpServletRequest mockServletRequest = mock(HttpServletRequest.class);
         Mockito.when(mockServletRequest.getRemoteAddr()).thenReturn("127.0.0.1");
         Mockito.when(mockServletRequest.getHeader("User-Agent")).thenReturn("Mozilla/5.0");
 

@@ -1,6 +1,8 @@
 package com.orange.credicard.proposal;
 
+import com.orange.credicard.card.CardRepository;
 import com.orange.credicard.exception.NotFoundException;
+import com.orange.credicard.service.accounts.AccountsClient;
 import com.orange.credicard.service.analysis.AnalysisResponse;
 import com.orange.credicard.service.analysis.AnalysisStatusCode;
 import com.orange.credicard.service.analysis.AnalysisClient;
@@ -8,7 +10,7 @@ import com.orange.credicard.service.analysis.AnalysisRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.BindException;
 import java.net.URI;
@@ -18,21 +20,31 @@ import java.util.Optional;
 @RequestMapping("/proposals")
 public class ProposalController {
 
-    private final ProposalRepository proposalRepository;
     private final AnalysisClient analysisClient;
+    private final AccountsClient accountsClient;
+    private final CardRepository cardRepository;
+    private final ProposalRepository proposalRepository;
+    private final AddressRepository addressRepository;
 
-    public ProposalController(ProposalRepository proposalRepository, AnalysisClient analysisClient) {
-        this.proposalRepository = proposalRepository;
+    public ProposalController(AnalysisClient analysisClient, AccountsClient accountsClient, CardRepository cardRepository,
+                              ProposalRepository proposalRepository, AddressRepository addressRepository) {
         this.analysisClient = analysisClient;
+        this.accountsClient = accountsClient;
+        this.cardRepository = cardRepository;
+        this.proposalRepository = proposalRepository;
+        this.addressRepository = addressRepository;
     }
 
+    @Transactional
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody @Valid ProposalCreateForm form, UriComponentsBuilder uriBuilder) {
 
         Optional<Proposal> possibleProposal = proposalRepository.findByDocument(form.getDocument());
-        if(possibleProposal.isPresent()) {
+        if (possibleProposal.isPresent()) {
             return ResponseEntity.status(422).build();
         }
+
+        addressRepository.save(form.getAddress());
 
         Proposal proposal = form.toModel();
         Proposal savedProposal = proposalRepository.save(proposal);
@@ -50,7 +62,10 @@ public class ProposalController {
 
     private ResponseEntity<?> getConvertedStatusServiceResponse(Proposal proposal, AnalysisResponse serviceResponse) {
         var analysisStatusCode = AnalysisStatusCode.valueOf(serviceResponse.getResultadoSolicitacao());
+
         proposal.setStatus(analysisStatusCode.getConvertedStatus());
+        proposalRepository.save(proposal);
+
         return ResponseEntity.status(analysisStatusCode.getHttpStatusCode()).build();
     }
 
