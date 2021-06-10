@@ -3,6 +3,9 @@ package com.orange.credicard.travel;
 import com.orange.credicard.card.Card;
 import com.orange.credicard.card.CardRepository;
 import com.orange.credicard.exception.NotFoundException;
+import com.orange.credicard.service.accounts.AccountsClient;
+import com.orange.credicard.service.accounts.ServiceTravelNoticeRequest;
+import com.orange.credicard.service.accounts.ServiceTravelNoticeStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,19 +14,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.Future;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
+
+import static com.orange.credicard.service.accounts.ServiceTravelNoticeStatus.NoticeStatus.CRIADO;
 
 @RestController
 public class TravelNoticeController {
 
     private final CardRepository cardRepository;
+    private final AccountsClient accountsClient;
     private final TravelNoticeRepository travelNoticeRepository;
 
-    public TravelNoticeController(CardRepository cardRepository, TravelNoticeRepository travelNoticeRepository) {
+    public TravelNoticeController(CardRepository cardRepository, AccountsClient accountsClient,
+                                  TravelNoticeRepository travelNoticeRepository) {
         this.cardRepository = cardRepository;
+        this.accountsClient = accountsClient;
         this.travelNoticeRepository = travelNoticeRepository;
     }
 
@@ -37,43 +42,20 @@ public class TravelNoticeController {
         String requesterIp = request.getRemoteAddr();
 
         TravelNotice travelNotice = form.toModel(card, requesterIp, userAgent);
-        travelNoticeRepository.save(travelNotice);
 
-        return ResponseEntity.ok().build();
-    }
-
-    public static class TravelNoticeCreateForm {
-
-        @NotBlank
-        private String destination;
-
-        @Future
-        @NotNull
-        private LocalDate endOfTrip;
-
-        public TravelNoticeCreateForm(@NotBlank String destination, @Future @NotNull LocalDate endOfTrip) {
-            this.destination = destination;
-            this.endOfTrip = endOfTrip;
+        ServiceTravelNoticeStatus noticeStatus;
+        try {
+            noticeStatus = accountsClient.travelNotice(card.getCardNumber(),
+                new ServiceTravelNoticeRequest(form.getDestination(), form.getEndOfTrip()));
+        } catch (Exception exception) {
+            return ResponseEntity.status(500).body("Falha sistema externo - Não foi possível criar o aviso viagem");
         }
 
-        public String getDestination() {
-            return destination;
+        if(CRIADO.equals(noticeStatus.getResultado())) {
+            travelNoticeRepository.save(travelNotice);
+            return ResponseEntity.ok().build();
         }
 
-        public void setDestination(String destination) {
-            this.destination = destination;
-        }
-
-        public LocalDate getEndOfTrip() {
-            return endOfTrip;
-        }
-
-        public void setEndOfTrip(LocalDate endOfTrip) {
-            this.endOfTrip = endOfTrip;
-        }
-
-        public TravelNotice toModel(Card card, String requesterIp, String userAgent) {
-            return new TravelNotice(card, destination, endOfTrip, requesterIp, userAgent);
-        }
+        return ResponseEntity.status(422).body("Não foi possível criar o aviso viagem");
     }
 }

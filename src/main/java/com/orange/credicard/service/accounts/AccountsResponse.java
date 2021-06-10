@@ -16,7 +16,7 @@ public class AccountsResponse {
     private Long idProposta;
 
     public Card toCard(Proposal proposal) {
-        return new Card(id, emitidoEm, vencimento.getDia(), limite, proposal);
+        return new Card(id, vencimento.getDia(), limite, proposal);
     }
 
     public AccountsResponse() {

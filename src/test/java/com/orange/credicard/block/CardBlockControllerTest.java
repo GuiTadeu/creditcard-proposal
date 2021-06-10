@@ -8,7 +8,6 @@ import com.orange.credicard.proposal.Proposal;
 import com.orange.credicard.proposal.ProposalRepository;
 import com.orange.credicard.service.accounts.AccountsClient;
 import com.orange.credicard.service.accounts.ServiceCardStatus;
-import com.orange.credicard.service.accounts.ServiceNameRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -25,7 +24,6 @@ import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.orange.credicard.card.CardStatus.BLOCKED;
@@ -36,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 
 @SpringBootTest
@@ -65,7 +62,7 @@ class CardBlockControllerTest {
             "jubileu@gmail.com", address, new BigDecimal("40000"), PF));
 
         cardId = cardRepository.save(
-            new Card("5352-7465-5791-9495", LocalDateTime.now(),
+            new Card("5352-7465-5791-9495",
                 20, new BigDecimal("20000"), proposal)).getId();
     }
 

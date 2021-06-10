@@ -22,7 +22,6 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.net.URI;
-import java.time.LocalDateTime;
 
 import static com.orange.credicard.proposal.PersonType.PF;
 import static org.junit.Assert.assertEquals;
@@ -49,7 +48,7 @@ public class BiometryControllerTest {
         Proposal proposal = proposalRepository.save(new Proposal("54799611011", "Jubileu Irineu da Silva",
             "jubileu@gmail.com", address, new BigDecimal("40000"), PF));
 
-        card = cardRepository.save(new Card("5352-7465-5791-9495", LocalDateTime.now(), 20, new BigDecimal("20000"), proposal));
+        card = cardRepository.save(new Card("5352-7465-5791-9495", 20, new BigDecimal("20000"), proposal));
     }
 
     @Test

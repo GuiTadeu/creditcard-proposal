@@ -47,11 +47,9 @@ public class Card {
     public Card() {
     }
 
-    public Card(@NotBlank String cardNumber, @NotNull @PastOrPresent LocalDateTime createdAt,
-                @NotNull @Range(min = 1, max = 31) Integer expirationDay,
+    public Card(@NotBlank String cardNumber, @NotNull @Range(min = 1, max = 31) Integer expirationDay,
                 @NotNull @Positive BigDecimal cardLimit, @NotNull Proposal proposal) {
         this.cardNumber = cardNumber;
-        this.createdAt = createdAt;
         this.expirationDay = expirationDay;
         this.cardLimit = cardLimit;
         this.proposal = proposal;
