@@ -17,4 +17,8 @@ public interface AccountsClient {
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/cartoes/{cardNumber}/avisos", consumes = "application/json")
     ServiceTravelNoticeStatus travelNotice(@PathVariable @NotBlank String cardNumber, @Valid @RequestBody ServiceTravelNoticeRequest request);
+
+    @RequestMapping(method = RequestMethod.POST, value = "/api/cartoes/{cardNumber}/carteiras", consumes = "application/json")
+    ServiceCreateWalletResponse createWallet(@PathVariable @NotBlank String cardNumber, @Valid @RequestBody ServiceCreateWalletRequest request);
+
 }
