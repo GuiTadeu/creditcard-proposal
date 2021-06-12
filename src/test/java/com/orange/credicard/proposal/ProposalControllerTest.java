@@ -67,7 +67,7 @@ public class ProposalControllerTest {
             .create(createForm, UriComponentsBuilder.newInstance());
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertThat(proposalRepository.findByDocument(createForm.getDocument())).isNotEmpty();
+        assertThat(proposalRepository.findByEncryptDocument(DocumentEncode.simpleEncode(createForm.getPlainDocument()))).isNotEmpty();
     }
 
     @Test
@@ -86,7 +86,7 @@ public class ProposalControllerTest {
 
         ProposalRepository mockProposalRepository = mock(ProposalRepository.class);
 
-        Mockito.when(mockProposalRepository.findByDocument(createForm.getDocument())).thenReturn(
+        Mockito.when(mockProposalRepository.findByEncryptDocument(DocumentEncode.simpleEncode(createForm.getPlainDocument()))).thenReturn(
             Optional.of(new Proposal("54799611011", "Jubileu Irineu da Silva",
                 "jubileu@gmail.com", address, new BigDecimal("40000"), PF))
         );

@@ -16,7 +16,7 @@ public class Proposal {
     private Long id;
 
     @NotBlank
-    private String document;
+    private String encryptDocument;
 
     @NotBlank
     private String name;
@@ -42,10 +42,10 @@ public class Proposal {
     public Proposal() {
     }
 
-    public Proposal(@NotBlank String document, @NotBlank String name,
+    public Proposal(@NotBlank String plainDocument, @NotBlank String name,
                     @Email @NotBlank String email, @NotNull Address address,
                     @NotNull @Positive BigDecimal salary, PersonType personType) {
-        this.document = document;
+        this.encryptDocument = DocumentEncode.simpleEncode(plainDocument);
         this.name = name;
         this.email = email;
         this.address = address;
@@ -57,8 +57,12 @@ public class Proposal {
         return id;
     }
 
-    public String getDocument() {
-        return document;
+    public String getEncryptDocument() {
+        return encryptDocument;
+    }
+
+    public String getDecryptDocument() {
+        return DocumentEncode.simpleDecode(encryptDocument);
     }
 
     public String getName() {
@@ -98,12 +102,12 @@ public class Proposal {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Proposal proposal = (Proposal) o;
-        return document.equals(proposal.document) && email.equals(proposal.email)
+        return encryptDocument.equals(proposal.encryptDocument) && email.equals(proposal.email)
                 && address.equals(proposal.address) && salary.equals(proposal.salary);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(document, email, address, salary);
+        return Objects.hash(encryptDocument, email, address, salary);
     }
 }

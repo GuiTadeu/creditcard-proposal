@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface ProposalRepository extends JpaRepository<Proposal, Long> {
 
-    Optional<Proposal> findByDocument(String document);
+    Optional<Proposal> findByEncryptDocument(String encryptDocument);
     List<Proposal> findByStatus(ProposalStatus status);
 }

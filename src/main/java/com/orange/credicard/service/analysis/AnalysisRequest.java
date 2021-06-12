@@ -16,7 +16,7 @@ public class AnalysisRequest {
 
     public AnalysisRequest(Proposal proposal) {
         this.idProposta = proposal.getId();
-        this.documento = proposal.getDocument();
+        this.documento = proposal.getDecryptDocument();
         this.nome = proposal.getName();
     }
 

@@ -14,7 +14,7 @@ public class AnalysisResponse {
 
     public AnalysisResponse(Proposal proposal, String resultadoSolicitacao) {
         this.idProposta = proposal.getId();
-        this.documento = proposal.getDocument();
+        this.documento = proposal.getDecryptDocument();
         this.nome = proposal.getName();
         this.resultadoSolicitacao = resultadoSolicitacao;
     }

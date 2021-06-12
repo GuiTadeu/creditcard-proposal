@@ -21,7 +21,7 @@ public class ProposalCreateForm {
     @NotBlank
     @CPF(groups = PhysicalPersonGroup.class)
     @CNPJ(groups = LegalPersonGroup.class)
-    private String document;
+    private String plainDocument;
 
     @NotBlank
     private String name;
@@ -40,9 +40,9 @@ public class ProposalCreateForm {
     @NotNull
     private PersonType personType;
 
-    public ProposalCreateForm(@NotBlank String document, @NotBlank String name, @Email @NotBlank String email,
+    public ProposalCreateForm(@NotBlank String plainDocument, @NotBlank String name, @Email @NotBlank String email,
                               @NotNull Address address, @NotNull @Positive BigDecimal salary, @NotNull PersonType personType) {
-        this.document = document;
+        this.plainDocument = plainDocument;
         this.name = name;
         this.email = email;
         this.address = address;
@@ -51,15 +51,15 @@ public class ProposalCreateForm {
     }
 
     public Proposal toModel() {
-        return new Proposal(document, name, email, address, salary, personType);
+        return new Proposal(plainDocument, name, email, address, salary, personType);
     }
 
-    public String getDocument() {
-        return document;
+    public String getPlainDocument() {
+        return plainDocument;
     }
 
-    public void setDocument(String document) {
-        this.document = document;
+    public void setPlainDocument(String plainDocument) {
+        this.plainDocument = plainDocument;
     }
 
     public String getName() {

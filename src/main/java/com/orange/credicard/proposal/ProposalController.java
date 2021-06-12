@@ -39,7 +39,8 @@ public class ProposalController {
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody @Valid ProposalCreateForm form, UriComponentsBuilder uriBuilder) {
 
-        Optional<Proposal> possibleProposal = proposalRepository.findByDocument(form.getDocument());
+        Optional<Proposal> possibleProposal = proposalRepository.findByEncryptDocument(
+            DocumentEncode.simpleEncode(form.getPlainDocument()));
         if (possibleProposal.isPresent()) {
             return ResponseEntity.status(422).build();
         }
